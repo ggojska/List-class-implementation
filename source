@@ -1,133 +1,67 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-#include <string>
+class List {
+private:
+	typedef struct node {
+		string data;
+		node* next;
 
-struct Node
-{
-	std::string data;
-	struct Node* next;
+	}* nodePtr;
+	nodePtr head;
+	nodePtr curr;
+	nodePtr temp;
+
+public:
+	List() :head(NULL), curr(NULL), temp(NULL)
+	{
+	}
+	void addElement(string element)
+	{
+		nodePtr n = new node;
+		n->next = NULL;
+		n->data = element;
+
+		if (head != NULL)
+		{
+			curr = head;
+			while (curr->next != NULL)
+			{
+				curr = curr->next;
+			}
+			curr->next = n;
+		}
+		else
+		{
+			head = n;
+		}
+	}
+
+	void deleteElement(string element)
+	{
+		nodePtr delPtr = NULL;
+		temp = head;
+		curr = head;
+		while (curr != NULL && curr->data != element)
+		{
+			temp = curr;
+			curr = curr->next;
+		}
+		delPtr = curr;
+		curr = curr->next;
+		temp->next = curr;
+		if (delPtr == head)
+		{
+			head = head->next;
+			temp = NULL;
+		}
+		delete delPtr;
+	}
+
+	void printList()
+	{
+		curr = head;
+		while (curr != NULL)
+		{
+			cout << curr->data << endl;
+			curr = curr->next;
+		}
+	}
 };
-
-bool compare(std::string s1, std::string s2)
-{
-	if (s1.length() < s2.length())
-		return true;
-	else if (s1.length() == s2.length())
-	{
-		for (int i = 0; i < s1.length(); i++)
-		{
-			if (s2[i] > s1[i])
-				return true;
-			else if (s2[i] < s1[i])
-				return false;
-		}
-	}
-	return false;
-}
-
-void printList(struct Node* head)
-{
-	struct Node* ptr = head;
-	while (ptr)
-	{
-		std::cout << ptr->data << std::endl;
-		ptr = ptr->next;
-	}
-
-}
-
-void push(struct Node** head, std::string data)
-{
-	struct Node* newNode = new Node;
-	newNode->data = data;
-	newNode->next = *head;
-	*head = newNode;
-}
-
-
-struct Node* SortedMerge(struct Node* a, struct Node* b)
-{
-	if (a == NULL)
-		return b;
-
-	else if (b == NULL)
-		return a;
-
-	struct Node* result = NULL;
-
-	if (compare(a->data, b->data)==false)
-	{
-		result = a;
-		result->next = SortedMerge(a->next, b);
-	}
-	else
-	{
-		result = b;
-		result->next = SortedMerge(a, b->next);
-	}
-
-	return result;
-}
-
-void FrontBackSplit(struct Node* source, struct Node** frontRef,
-	struct Node** backRef)
-{
-	if (source == NULL || source->next == NULL)
-	{
-		*frontRef = source;
-		*backRef = NULL;
-		return;
-	}
-
-	struct Node* slow = source;
-	struct Node* fast = source->next;
-
-	while (fast != NULL)
-	{
-		fast = fast->next;
-		if (fast != NULL)
-		{
-			slow = slow->next;
-			fast = fast->next;
-		}
-	}
-
-	*frontRef = source;
-	*backRef = slow->next;
-	slow->next = NULL;
-}
-
-void MergeSort(struct Node** head)
-{
-	if (*head == NULL || (*head)->next == NULL)
-		return;
-
-	struct Node* a;
-	struct Node* b;
-
-	FrontBackSplit(*head, &a, &b);
-
-	MergeSort(&a);
-	MergeSort(&b);
-
-	*head = SortedMerge(a, b);
-}
-
-int main()
-{
-	int n;
-	std::cin >> n;
-
-	struct Node *head = NULL;
-	for (int i = 0; i < n; i++)
-	{
-		std::string a;
-		std::cin >> a;
-		push(&head, a);
-	}
-	MergeSort(&head);
-	printList(head);
-
-	return 0;
-}
